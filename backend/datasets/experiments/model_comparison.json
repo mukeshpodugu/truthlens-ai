@@ -1,0 +1,50 @@
+{
+    "LogisticRegression": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+    },
+    "NaiveBayes": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+    },
+    "RandomForest": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+    },
+    "LSTM": {
+        "accuracy": 0.8845,
+        "precision": 0.871,
+        "recall": 0.892,
+        "f1_score": 0.8814
+    },
+    "BiLSTM": {
+        "accuracy": 0.902,
+        "precision": 0.894,
+        "recall": 0.911,
+        "f1_score": 0.9024
+    },
+    "BERT": {
+        "accuracy": 0.9412,
+        "precision": 0.935,
+        "recall": 0.948,
+        "f1_score": 0.9415
+    },
+    "RoBERTa": {
+        "accuracy": 0.9568,
+        "precision": 0.951,
+        "recall": 0.963,
+        "f1_score": 0.957
+    },
+    "DistilBERT": {
+        "accuracy": 0.938,
+        "precision": 0.931,
+        "recall": 0.945,
+        "f1_score": 0.9379
+    }
+}
