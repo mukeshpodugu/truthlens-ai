@@ -50,6 +50,50 @@ def get_ml_model(model_name: str):
         print(f"Error loading model {model_name}: {e}")
         return None, None
 
+def check_factual_contradictions(text: str) -> Optional[tuple[str, float, list[str]]]:
+    text_lower = text.lower()
+    
+    # 1. Scientific facts contradictions
+    # Boiling point of water
+    boiling_match = re.search(r'water\s+boil(?:ing)?(?:\s+point)?\s+(?:is|at)\s+(\d+)\s*[^cf0-9]*(celsius|c|fahrenheit|f)', text_lower)
+    if boiling_match:
+        val = int(boiling_match.group(1))
+        unit = boiling_match.group(2)
+        if (unit in ['celsius', 'c'] and val != 100) or (unit in ['fahrenheit', 'f'] and val != 212):
+            return "Fake News", 0.98, [
+                f"Factual Contradiction: Water boiling point is mathematically 100°C (212°F) under standard pressure. The statement claim of {val}°{unit.upper()} is scientifically false."
+            ]
+            
+    # Freezing point of water
+    freezing_match = re.search(r'water\s+freez(?:ing)?(?:\s+point)?\s+(?:is|at)\s+(\d+)\s*[^cf0-9]*(celsius|c|fahrenheit|f)', text_lower)
+    if freezing_match:
+        val = int(freezing_match.group(1))
+        unit = freezing_match.group(2)
+        if (unit in ['celsius', 'c'] and val != 0) or (unit in ['fahrenheit', 'f'] and val != 32):
+            return "Fake News", 0.98, [
+                f"Factual Contradiction: Water freezing point is mathematically 0°C (32°F) under standard pressure. The statement claim of {val}°{unit.upper()} is scientifically false."
+            ]
+            
+    # 2. General science hoaxes
+    science_hoaxes = {
+        "earth is flat": ("Fake News", 0.99, ["Scientific Misinformation: Verified astronomical observation and gravity confirm that the Earth is an oblate spheroid. The flat Earth claim is false."]),
+        "flat earth": ("Fake News", 0.98, ["Scientific Misinformation: The flat Earth claim contradicts basic physics, geodesy, and satellite imaging."]),
+        "sun rises in the west": ("Fake News", 0.99, ["Scientific Misinformation: Due to the Earth's clockwise rotation, the sun rises in the east and sets in the west."]),
+        "sun sets in the east": ("Fake News", 0.99, ["Scientific Misinformation: Due to the Earth's clockwise rotation, the sun rises in the east and sets in the west."]),
+        "moon is made of cheese": ("Satire", 0.99, ["Satirical Claim: The moon is made of silicate rock, not cheese. This is a common children's fable or joke."]),
+        "gravity does not exist": ("Fake News", 0.95, ["Scientific Misinformation: Gravity is a fundamental physical interaction that governs massive bodies, fully observed and verified."]),
+        "vaccines contain microchips": ("Fake News", 0.99, ["Medical Conspiracy: Extensive safety trials and chemical analyses confirm vaccines do not contain microchips or tracking devices."]),
+        "covid-19 is a hoax": ("Fake News", 0.98, ["Public Health Misinformation: SARS-CoV-2 (COVID-19) is a biologically sequenced, isolated virus that has been globally documented."]),
+        "covid is a hoax": ("Fake News", 0.98, ["Public Health Misinformation: COVID-19 is a globally documented disease caused by the SARS-CoV-2 virus."]),
+        "bleach cures covid": ("Fake News", 0.99, ["Dangerous Medical Misinformation: Ingesting bleach is highly toxic and does not cure COVID-19 or any viral infection."]),
+    }
+    
+    for hoax, (label, conf, explanations) in science_hoaxes.items():
+        if hoax in text_lower:
+            return label, conf, explanations
+            
+    return None
+
 @router.post("/analyze")
 async def analyze_news(
     request: Request,
@@ -152,6 +196,13 @@ async def analyze_news(
         else:
             classification_result = "Real News"
 
+    # Factual contradiction heuristics override
+    custom_exps = None
+    fact_contradiction = check_factual_contradictions(text)
+    if fact_contradiction:
+        classification_result, confidence, custom_exps = fact_contradiction
+        is_fake_pred = (classification_result != "Real News")
+
     # Extract source domain from URL
     domain = None
     if source_url:
@@ -169,7 +220,7 @@ async def analyze_news(
     
     # 4. Explainable AI Heatmap and Explanations
     binary_label_for_xai = 1 if is_fake_pred else 0
-    xai_data = xai_service.explain_prediction(text, binary_label_for_xai, confidence)
+    xai_data = xai_service.explain_prediction(text, binary_label_for_xai, confidence, custom_explanations=custom_exps)
     
     prediction_time = (time.time() - start_time) * 1000  # in ms
     

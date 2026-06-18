@@ -16,7 +16,7 @@ SUSPICIOUS_WORDS = {
 }
 
 class ExplainableAIService:
-    def explain_prediction(self, text: str, label: int, confidence: float) -> dict:
+    def explain_prediction(self, text: str, label: int, confidence: float, custom_explanations: list = None) -> dict:
         """
         Generates explainable insights for a news prediction.
         label: 0 for Real, 1 for Fake
@@ -67,8 +67,12 @@ class ExplainableAIService:
 
         # Generate structural/narrative reasoning
         explanations = []
+        if custom_explanations:
+            explanations.extend(custom_explanations)
+            
         if label == 1: # Fake News
-            explanations.append("The article exhibits highly sensationalist language and emotional triggers.")
+            if not custom_explanations:
+                explanations.append("The article exhibits highly sensationalist language and emotional triggers.")
             if len(re.findall(r'\b[A-Z]{4,}\b', text)) > 2:
                 explanations.append("Excessive uppercase lettering detected, indicating clickbait or aggressive tone.")
             if any(w in suspicious_matches for w in ["secret", "leak", "hiding", "insider", "exposed"]):
