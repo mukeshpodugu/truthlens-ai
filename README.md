@@ -9,6 +9,14 @@ Location: Srikakulam, AP, India
 
 ---
 
+## Live Deploys
+
+* **Frontend Web Client (Vercel):** [https://truthlens-ai-rouge.vercel.app](https://truthlens-ai-rouge.vercel.app)
+* **Backend Core API (Render):** [https://truthlens-ai-a68q.onrender.com](https://truthlens-ai-a68q.onrender.com)
+* **API Documentation (Swagger UI):** [https://truthlens-ai-a68q.onrender.com/docs](https://truthlens-ai-a68q.onrender.com/docs)
+
+---
+
 ## Key Features
 
 1. **Intelligent News Auditing:** paste article text, upload documents, or check source URLs to identify: *Real News, Fake News, Misleading Content, Partially True, or Satire*.
