@@ -87,7 +87,24 @@ async def analyze_news(
     entities = nlp_pipeline.extract_entities(text)
     topics = nlp_pipeline.extract_topics(text)
     
-    # 2. Fake News Classification (Model Inference)
+    # 2. Hybrid Fake News Classification (Model + Heuristics)
+    heuristics_fake_score = 0.0
+    
+    # Sensationalism & high-bias vocabulary check
+    sensational_terms = ["shocking", "died", "killed", "alien", "conspiracy", "secret", "leak", "hiding", "miracle", "hologram", "wipe out", "warns"]
+    for term in sensational_terms:
+        if re.search(r'\b' + re.escape(term) + r'\b', nlp_results["cleaned_text"]):
+            heuristics_fake_score += 0.3
+            
+    # Clickbait punctuation & capitalization
+    exclamations = len(re.findall(r'!', text))
+    if exclamations > 0:
+        heuristics_fake_score += 0.15
+        
+    caps_words = len(re.findall(r'\b[A-Z]{4,}\b', text))
+    if caps_words > 0:
+        heuristics_fake_score += 0.15
+        
     model, vectorizer = get_ml_model(model_name)
     
     is_fake_pred = False
@@ -98,18 +115,21 @@ async def analyze_news(
         # Vectorize text
         vec_text = vectorizer.transform([nlp_results["cleaned_text"]])
         pred_label = model.predict(vec_text)[0]
-        # Get probability
         try:
             probs = model.predict_proba(vec_text)[0]
             confidence = float(probs[pred_label])
         except Exception:
-            confidence = 0.8  # Default high confidence if predict_proba is not supported
+            confidence = 0.8
         is_fake_pred = (pred_label == 1)
+        
+        # Heuristic Override: If text contains strong sensational indicators, override default Real verdict
+        if heuristics_fake_score >= 0.3 and not is_fake_pred:
+            is_fake_pred = True
+            confidence = min(0.92, 0.55 + heuristics_fake_score)
     else:
-        # Fallback to simulated Transformer / standard heuristic prediction if models are not trained yet
         selected_model_used = f"{model_name} (Simulated)"
-        is_fake_pred = any(w in nlp_results["cleaned_text"] for w in ["shocking", "alien", "ufo", "conspiracy", "hiding"])
-        confidence = 0.82 if is_fake_pred else 0.88
+        is_fake_pred = (heuristics_fake_score >= 0.3)
+        confidence = 0.72 + min(0.2, heuristics_fake_score)
 
     # Multi-class mapping heuristically on top of binary classification
     sentiment_data = sentiment_service.analyze(text)
