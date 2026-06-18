@@ -4,6 +4,8 @@ import Layout from '../components/Layout';
 import API from '../utils/api';
 import { FileDown, FileSpreadsheet, Trash2, Search, Filter, AlertCircle, FileText } from 'lucide-react';
 
+const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://truthlens-ai-a68q.onrender.com/api/v1';
+
 export default function Reports() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -180,14 +182,14 @@ export default function Reports() {
 
                 <div className="grid grid-cols-2 gap-2 mt-6">
                   <a
-                    href={`http://localhost:8000/api/v1/reports/export/${report.article_id}/pdf`}
+                    href={`${apiBase}/reports/export/${report.article_id}/pdf`}
                     className="py-2 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-100 dark:hover:bg-slate-900 text-[10px] font-semibold text-center transition-colors flex items-center justify-center space-x-1.5"
                   >
                     <FileDown size={12} />
                     <span>PDF Document</span>
                   </a>
                   <a
-                    href={`http://localhost:8000/api/v1/reports/export/${report.article_id}/excel`}
+                    href={`${apiBase}/reports/export/${report.article_id}/excel`}
                     className="py-2 rounded-lg border border-border-light dark:border-border-dark hover:bg-slate-100 dark:hover:bg-slate-900 text-[10px] font-semibold text-center transition-colors flex items-center justify-center space-x-1.5"
                   >
                     <FileSpreadsheet size={12} />

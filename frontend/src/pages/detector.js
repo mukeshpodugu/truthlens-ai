@@ -3,6 +3,8 @@ import Layout from '../components/Layout';
 import API from '../utils/api';
 import { ShieldAlert, Sparkles, FileSpreadsheet, FileDown, Bookmark, RefreshCw, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 
+const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://truthlens-ai-a68q.onrender.com/api/v1';
+
 export default function Detector() {
   const [text, setText] = useState('');
   const [title, setTitle] = useState('');
@@ -260,19 +262,19 @@ export default function Detector() {
                     )}
 
                     <a
-                      href={`http://localhost:8000/api/v1/reports/export/${result.article_id}/pdf`}
-                      className="flex flex-col items-center justify-center p-3 rounded-xl border border-border-light dark:border-border-dark hover:bg-slate-100 dark:hover:bg-slate-900 text-xs font-semibold text-center transition-colors"
+                      href={`${apiBase}/reports/export/${result.article_id}/pdf`}
+                      className="flex flex-col items-center justify-center p-3 rounded-xl border border-border-light dark:border-border-dark hover:bg-slate-100 dark:hover:bg-slate-900 text-xs font-semibold transition-all"
                     >
-                      <FileDown size={16} />
-                      <span className="mt-1.5">PDF Report</span>
+                      <FileDown size={16} className="text-violet-500" />
+                      <span className="mt-1.5">PDF</span>
                     </a>
-
+                    
                     <a
-                      href={`http://localhost:8000/api/v1/reports/export/${result.article_id}/excel`}
-                      className="flex flex-col items-center justify-center p-3 rounded-xl border border-border-light dark:border-border-dark hover:bg-slate-100 dark:hover:bg-slate-900 text-xs font-semibold text-center transition-colors"
+                      href={`${apiBase}/reports/export/${result.article_id}/excel`}
+                      className="flex flex-col items-center justify-center p-3 rounded-xl border border-border-light dark:border-border-dark hover:bg-slate-100 dark:hover:bg-slate-900 text-xs font-semibold transition-all"
                     >
-                      <FileSpreadsheet size={16} />
-                      <span className="mt-1.5">Excel Sheet</span>
+                      <FileSpreadsheet size={16} className="text-emerald-500" />
+                      <span className="mt-1.5">Excel</span>
                     </a>
                   </div>
                 </div>
