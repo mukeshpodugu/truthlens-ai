@@ -8,40 +8,39 @@ This guide explains how to deploy **TruthLens AI** to production cloud platforms
 
 ## 1. Backend & Database Deployment (Render.com)
 
-Render is ideal for hosting web services, managed databases, and Redis clusters.
+Render is ideal for hosting web services and Redis clusters. For the database, since Render limits accounts to one active free PostgreSQL instance, you can use **Neon.tech** or **Supabase** for a free, persistent PostgreSQL database.
 
-### Step 1: Deploy PostgreSQL Database
-1. Log in to [Render Dashboard](https://dashboard.render.com).
-2. Click **New** -> **PostgreSQL**.
-3. Configure the database:
-   - **Name**: `truthlens-db`
-   - **Database Name**: `truthlens_db`
-   - **User**: `truthlens_admin`
-4. Click **Create Database**.
-5. Save the **Internal Database URL** (for backend communication) and **External Database URL** (for migrations).
+### Step 1: Deploy PostgreSQL Database (Neon.tech / Supabase)
+#### Option A: Neon.tech (Recommended)
+1. Log in to [Neon.tech](https://neon.tech) and create a free project named `truthlens-ai`.
+2. Copy the **Connection URI** from your dashboard (e.g., `postgresql://user:pass@ep-hostname.aws.neon.tech/neondb?sslmode=require`).
+3. Save this URL to use in your Render Web Service.
 
-### Step 2: Deploy Redis Cache
-1. Click **New** -> **Redis**.
-2. Configure:
-   - **Name**: `truthlens-redis`
-3. Click **Create Redis**.
+#### Option B: Supabase
+1. Log in to [Supabase.com](https://supabase.com) and create a free project.
+2. Go to **Settings** -> **Database** -> **Connection string** (select URI).
+3. Copy the URL, replace `[YOUR-PASSWORD]` with your database password, and save it.
+
+### Step 2: Deploy Redis Cache (Render)
+1. Log in to your Render Dashboard.
+2. Click **New** -> **Redis**.
+3. Configure Name: `truthlens-redis` and click **Create**.
 4. Save the **Internal Redis Connection String**.
 
 ### Step 3: Deploy FastAPI Backend Web Service
-1. Push your code to a GitHub repository.
-2. Click **New** -> **Web Service**.
-3. Connect your GitHub repository.
-4. Configure the service:
+1. Click **New** -> **Web Service** on Render.
+2. Connect your GitHub repository.
+3. Configure the service:
    - **Name**: `truthlens-backend`
-   - **Environment**: `Docker` (Render will automatically detect the `./backend/Dockerfile`)
+   - **Environment**: `Docker`
    - **Docker Build Context**: `./backend`
    - **Docker File Path**: `./Dockerfile`
-5. Expand **Advanced** and add the following **Environment Variables**:
-   - `DATABASE_URL`: *(Your Internal PostgreSQL Database URL from Step 1)*
-   - `REDIS_URL`: *(Your Internal Redis URL from Step 2)*
-   - `JWT_SECRET`: *(A secure random string, e.g., `d7a5b3...`)*
+4. Under **Environment Variables**, add:
+   - `DATABASE_URL`: *(Your Connection URI from Neon/Supabase)*
+   - `REDIS_URL`: *(Your Internal Redis URL from Render)*
+   - `JWT_SECRET`: *(A secure random string)*
    - `ENVIRONMENT`: `production`
-6. Click **Create Web Service**.
+5. Click **Create Web Service**.
 7. Once deployed, note down the provided Render service URL (e.g., `https://truthlens-backend.onrender.com`).
 
 ---
