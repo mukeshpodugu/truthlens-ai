@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import pickle
 import random
@@ -31,8 +32,8 @@ def get_ml_model(model_name: str):
         return LOADED_MODELS[model_name]
         
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    model_path = os.path.join(BASE_DIR, "backend", "datasets", "models", f"{model_name.lower()}_model.pkl")
-    vec_path = os.path.join(BASE_DIR, "backend", "datasets", "models", "tfidf_vectorizer.pkl")
+    model_path = os.path.join(BASE_DIR, "datasets", "models", f"{model_name.lower()}_model.pkl")
+    vec_path = os.path.join(BASE_DIR, "datasets", "models", "tfidf_vectorizer.pkl")
     
     if not os.path.exists(model_path) or not os.path.exists(vec_path):
         return None, None
